@@ -22,6 +22,7 @@ async function Patch(body) {
 	await Location.findByIdAndUpdate({ _id: body._id},body);
 	return findOne(body._id)
 }
+
 module.exports.findAll = findAll
 module.exports.findOne = findOne
 module.exports.Create = Create
