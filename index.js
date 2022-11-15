@@ -1,11 +1,12 @@
 const express = require('express')
 const mongoose = require('mongoose')
+const bodyParser = require('body-parser')
 require('dotenv').config()
 const locationController = require('./locations/locations.controller')
 const app = express()
 const port = 3000
 
-
+app.use(bodyParser.json())
 app.use(locationController)
 app.get("/", (req, res) => {
 	return res.status(200).send("Hello World")
