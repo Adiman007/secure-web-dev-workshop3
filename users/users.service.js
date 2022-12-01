@@ -1,40 +1,62 @@
-// This file holds the Business-Logic layer, interacting with Data Layer
-
 const Users = require("./users.model");
 const bcrypt = require("bcrypt")
-const Console = require("console");
+const jwt = require('jsonwebtoken')
+require('dotenv').config()
 
 function findAll(){
-	return Users.find({}).limit(10)
+	return Users.find({}).select("username");
 }
 async function Register(body) {
-	const User = new Users(body)
-	if (await Users.find({},{username:User.username})) {return "user not unique"}
-	else {
-		User.password=bcrypt.genSalt(10, (err, salt) => {
-			bcrypt.hash(User.password, salt, function(err, hash) {
-				// Store hash in the database
-			});
-		})
-		await User.save()
-		return User.username
+	try {
+		if (body === null){return "Bad Request"}
+		const User = new Users(body)
+		if(checkUserUnique(User.username)===true) {
+			const hash = await bcrypt.hash(User.password, 10);
+			User.password = hash;
+			await User.save();
+			return User;
+		}
+		else{
+			return (null)
+		}
+	}
+	catch (e){
+		console.log("User couldn't be create")
+		console.error(e);
 	}
 }
+async function checkUserUnique(username) {
+	if (await Users.find({},{username}===true))
+	{return false}
+	else{return true;}
+}
+async function MatchUser(body) {
+	const user = await Users.find({},{username:body.username})
+	return await bcrypt.compare(body.password,user.password)
+}
+
 function findOne(id) {
-	return Location.findById(id);
+	return Users.findById(id);
 }
 async function Delete(item) {
-	await Location.deleteOne({ _id: item});
+	await Users.deleteOne({ _id: item});
 	return "Succes"
 }
 async function Patch(body) {
-	await Location.findByIdAndUpdate({ _id: body._id},body);
+	await Users.findByIdAndUpdate({ _id: body._id},body);
 	return findOne(body._id)
 }
+async function createJWT(username) {
+	return jwt.sign({sub:username}, process.env.JWT_SECRET);
+}
+
 
 module.exports.findAll = findAll
 module.exports.findOne = findOne
 module.exports.Register = Register
 module.exports.Delete = Delete
 module.exports.Patch = Patch
+module.exports.createJWT= createJWT
+module.exports.MatchUser= MatchUser
+
 
