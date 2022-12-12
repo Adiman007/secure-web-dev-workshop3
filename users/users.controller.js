@@ -1,16 +1,17 @@
 const router = require('express').Router()
 const usersService = require('./users.service')
-const passport = require('../PassportStrategies/LocalStrategy');
+const passportJWT = require('../PassportStrategies/jwtStategy');
+const passportLocal = require('../PassportStrategies/LocalStrategy');
 
-router.get('/users', async (req, res) => {
+// default /users route
+router.get('/users',passportJWT.authenticate('jwt', {session:false}),async (req, res) => {
 	return res.status(200).send({users: await usersService.findAll()})
 })
-router.get('/users/me', async (req, res) => {
-	return res.status(200).send({users: await usersService.findOne(req.params.id)})
-})
-router.post('/users/login', async (req, res) => {
+
+// auth /users routes
+router.post('/users/login',passportLocal.authenticate('local', {session: false}), async (req, res) => {
 	console.log(req.body)
-	const token = await usersService.generateJWT(req.body.username)
+	const token = await usersService.createJWT(req.user._id)
 	return res.status(200).send({token})
 })
 router.post('/users/register', async (req, res) => {
@@ -21,13 +22,17 @@ router.post('/users/register', async (req, res) => {
 	}
 
 })
+// routes /me
+router.use('/users/me',passportJWT.authenticate('jwt', {session:false}));
 router.patch('/users/me', async (req, res) => {
 	console.log(req.body)
-	return res.status(200).send({users: await usersService.Patch(req.body) })
+	return res.status(200).send({users: await usersService.Patch(req.user._id,req.body) })
 })
 router.delete('/users/me', async (req, res) => {
-	return res.status(200).send(await usersService.Delete(req.params.id))
+	return res.status(200).send(await usersService.Delete(req.user._id))
 })
-
+router.get('/users/me', async (req, res) => {
+	return res.status(200).send({users: await usersService.findOneUser(req.user._id)})
+})
 
 module.exports = router

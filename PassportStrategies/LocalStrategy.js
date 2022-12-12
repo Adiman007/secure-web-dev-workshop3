@@ -4,21 +4,19 @@ const User = require('../users/users.model');
 const usersService = require('../users/users.service');
 
 passport.use(new LocalStrategy(
-    function(username, password, done) {
-        User.findOne({ username }, async function (err, user) {
-            if (err) { return done(err); }
+    function(username, password, res) {
+        User.findOne({ username }, async function (error, user) {
+            if (error) { return res(error); }
             if (!user) {
-                console.log("User not found... Sending status 404");
-                return done(null, 404);
+                console.log("Error 404");
+                return res(null, false);
             }
-
-            if (!await usersService.verify(username, password)) {
-                console.log("Password not matching... Sending status 403");
-                return done(null, 403);
+            if (!await usersService.MatchUser(username, password)) {
+                console.log("Error 403");
+                return res(null, false);
             }
-            return done(null, user);
+            return res(null, user);
         });
     }
 ));
-
 module.exports = passport

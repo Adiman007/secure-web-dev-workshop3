@@ -10,9 +10,10 @@ async function Register(body) {
 	try {
 		if (body === null){return "Bad Request"}
 		const User = new Users(body)
-		if(checkUserUnique(User.username)===true) {
+		if(await checkUserUnique(User.username)==true) {
 			const hash = await bcrypt.hash(User.password, 10);
 			User.password = hash;
+            console.log(hash)
 			await User.save();
 			return User;
 		}
@@ -26,33 +27,42 @@ async function Register(body) {
 	}
 }
 async function checkUserUnique(username) {
-	if (await Users.find({},{username}===true))
+
+	if (await Users.findOne({username:username}))
 	{return false}
 	else{return true;}
 }
-async function MatchUser(body) {
-	const user = await Users.find({},{username:body.username})
-	return await bcrypt.compare(body.password,user.password)
+async function MatchUser(username,pwd) {
+	try {
+		const user = await Users.findOne({username: username})
+		const matchHash = await bcrypt.compare(pwd,user.password);
+		return matchHash
+	}
+	catch (e){
+		console.error(e)
+		return null
+	}
 }
 
-function findOne(id) {
+function findOneUser(id) {
 	return Users.findById(id);
 }
-async function Delete(item) {
-	await Users.deleteOne({ _id: item});
+async function Delete(id) {
+	await Users.deleteOne({ _id: id});
 	return "Succes"
 }
-async function Patch(body) {
-	await Users.findByIdAndUpdate({ _id: body._id},body);
-	return findOne(body._id)
+async function Patch(_id,body) {
+	await Delete(_id)
+	await Register(body)
+	return Users.findOne({username:body.username})
 }
-async function createJWT(username) {
-	return jwt.sign({sub:username}, process.env.JWT_SECRET);
+async function createJWT(_id) {
+	return jwt.sign({sub:_id}, process.env.JWT_SECRET);
 }
 
 
 module.exports.findAll = findAll
-module.exports.findOne = findOne
+module.exports.findOneUser = findOneUser
 module.exports.Register = Register
 module.exports.Delete = Delete
 module.exports.Patch = Patch

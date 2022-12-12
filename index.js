@@ -9,12 +9,14 @@ const app = express()
 const port = 3000
 
 app.use(bodyParser.json())
-app.use(locationController)
 app.use(passport.initialize());
-app.use(usersController)
 app.use(bodyParser.urlencoded({ extended: true }));
+//routes
+app.use(usersController)
+app.use(locationController)
+
 app.get("/", (req, res) => {
-	return res.status(200).send("Hello World")
+	return res.status(200).send("You should go to /users or /locations");
 })
 app.listen(port, async () => {
 	await mongoose.connect(process.env.MONGO_URI)
