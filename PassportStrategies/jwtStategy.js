@@ -1,5 +1,5 @@
 const passport = require('passport');
-const usersService = require('../users/users.service');
+const User = require('../users/users.model');
 const { Strategy, ExtractJwt } = require('passport-jwt');
 passport.use(new Strategy(
         {

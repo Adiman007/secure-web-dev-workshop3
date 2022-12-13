@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const Location = require('./locations/locations.model')
 require('dotenv').config()
 
+
 const getLocations = (locations) => {
     let _loc = []
     locations.forEach(element => {
