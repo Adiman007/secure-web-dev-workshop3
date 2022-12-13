@@ -2,9 +2,10 @@ const router = require('express').Router()
 const usersService = require('./users.service')
 const passportJWT = require('../PassportStrategies/jwtStategy');
 const passportLocal = require('../PassportStrategies/LocalStrategy');
+const RoleMiddleWare = require('../RoleMiddleware')
 
 // default /users route
-router.get('/users',passportJWT.authenticate('jwt', {session:false}),async (req, res) => {
+router.get('/users',passportJWT.authenticate('jwt', {session:false}),RoleMiddleWare.roleMiddleware(['admin']),async (req, res) => {
 	return res.status(200).send({users: await usersService.findAll()})
 })
 
