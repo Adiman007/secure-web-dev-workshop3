@@ -4,9 +4,15 @@ const location = require('./locations.model')
 jest.mock('./locations.model')
 describe('Locations FindAll',()=>{
     it("should call model find", async()=>{
-        location.find({}).limit(10).lean().mockResolvedValue([1,2,3,4])
-        expect(await locationsService.findAll({}).toEqual([1,2,3,4]))
-        expect(locationModel.find).toHaveBeenCalledTimes(1)
+        location.find.mockImplementation(() => ({
+            limit: jest.fn().
+            mockImplementation(
+                () => ({
+                    lean: jest.fn().mockResolvedValue([1, 2, 3, 4])
+                })),
+        }))
+        expect(await locationsService.findAll({})).toEqual([1,2,3,4])
+        expect(location.find).toHaveBeenCalledTimes(1)
     })
 })
 
