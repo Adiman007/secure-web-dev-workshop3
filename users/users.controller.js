@@ -11,7 +11,6 @@ router.get('/users',passportJWT.authenticate('jwt', {session:false}),RoleMiddleW
 
 // auth /users routes
 router.post('/users/login',passportLocal.authenticate('local', {session: false}), async (req, res) => {
-	console.log(req.body)
 	const token = await usersService.createJWT(req.user._id)
 	return res.status(200).send({token})
 })

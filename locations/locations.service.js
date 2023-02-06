@@ -16,11 +16,22 @@ function findOne(id) {
 }
 async function Delete(item) {
 	await Location.deleteOne({ _id: item});
-	return "Succes"
+	return { msg : "OK"}
 }
-async function Patch(body) {
-	await Location.findByIdAndUpdate({ _id: body._id},body);
-	return findOne(body._id)
+async function Patch(id,body) {
+	console.log(id)
+	console.log(body)
+	const location = await findOne(id);
+	for (const locationElementKey in body) {
+		if (
+			locationElementKey[0] !== "_" &&
+			body.hasOwnProperty(locationElementKey)
+		) {
+			location[locationElementKey] = body[locationElementKey];
+		}
+	}
+	await location.save();
+	return await findOne(id);
 }
 
 module.exports.findAll = findAll
