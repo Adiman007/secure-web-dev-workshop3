@@ -23,3 +23,6 @@ app.listen(port, async () => {
 	console.log("Connected")
 	console.log(`API listening on port ${port}, visit http://localhost:${port}/`)
 })
+
+// Export the Express API
+module.exports = app;
