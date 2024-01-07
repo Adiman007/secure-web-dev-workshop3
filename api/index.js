@@ -2,8 +2,8 @@ const express = require('express')
 const mongoose = require('mongoose')
 const bodyParser = require('body-parser')
 require('dotenv').config()
-const locationController = require('./locations/locations.controller')
-const usersController = require('./users/users.controller')
+const locationController = require('../locations/locations.controller')
+const usersController = require('../users/users.controller')
 const passport = require('passport');
 const app = express()
 const port = 3000
